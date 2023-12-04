@@ -4,7 +4,6 @@ import numpy as np
 def question_1():
     with open("./day_3_input.txt") as input:
         #read input into memory
-
         in_array = np.array([[symbol for symbol in line.strip()] for line in input])
         in_array = np.pad(in_array, 1, 'constant', constant_values=".")
 
@@ -30,9 +29,6 @@ def question_1():
             else:
                 j += 1
 
-                    #kernal valid check
-
-
     print(total)
 
 
@@ -47,7 +43,6 @@ def kernal_check(in_array):
 def question_2():
     with open("./day_3_input.txt") as input:
         # read input into memory
-
         in_array = np.array([[symbol for symbol in line.strip()] for line in input])
         in_array = np.pad(in_array, 1, 'constant', constant_values=".")
 
@@ -89,12 +84,8 @@ def compute_gear(in_array, x , y):
             else:
                  j += 1
 
-    # if len(gear_nums) > 2:
+    # if len(gear_nums) > 2: # edge case involving greater than 3 adjacency, wasn't a problem for my input
     return gear_nums[0] * gear_nums[1]
-    # print(gear_num)
-
-
-
 
 
 def vertical_adjacency_check(adjacency):
