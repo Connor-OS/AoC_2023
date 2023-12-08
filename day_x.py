@@ -31,4 +31,4 @@ if __name__ == '__main__':
     print(f"Question 1 answer is: {answer_1}")
 
     # answer_2 = question_2()
-    # print(f"Question 2 answer is: {answer_1}")
+    # print(f"Question 2 answer is: {answer_2}")

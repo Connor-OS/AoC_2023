@@ -18,12 +18,12 @@ def file_lines():
             yield line
 
 
-def question_1():
+def question(hand_power):
     """Answer to the first question of the day"""
     answer = 0
     hands = [(hand, int(bid)) for hand, bid in file_lines()]
 
-    hands = sorted(hands, key=lambda x: calc_hand_power(x[0]))
+    hands = sorted(hands, key=lambda x: hand_power(x[0]))
 
     for i, hand in enumerate(hands):
         # print(hand[0], i+1)
@@ -64,23 +64,6 @@ def calc_hand_power(hand):
         power += (14**(6-i)) * int(card)
 
     return power
-
-
-def question_2():
-    """Answer to the second question of the day"""
-    """Answer to the first question of the day"""
-    answer = 0
-    hands = [(hand, int(bid)) for hand, bid in file_lines()]
-
-    hands = sorted(hands, key=lambda x: calc_hand_power_jokers(x[0]))
-
-    powers = [calc_hand_power_jokers(h[0]) for h in hands]
-
-    for i, hand in enumerate(hands):
-        # print(hand[0], i+1)
-        answer += hand[1] * (i+1)
-
-    return answer
 
 
 def calc_hand_power_jokers(hand):
@@ -129,10 +112,9 @@ def calc_hand_power_jokers(hand):
     return power
 
 
-
 if __name__ == '__main__':
-    answer_1 = question_1()
+    answer_1 = question(calc_hand_power)
     print(f"Question 1 answer is: {answer_1}")
 
-    answer_2 = question_2()
+    answer_2 = question(calc_hand_power_jokers)
     print(f"Question 2 answer is: {answer_2}")
