@@ -22,8 +22,6 @@ def question_1():
         for i, inter in enumerate(intervals[1:]):
             inter.append(inter[-1] + intervals[i][-1])
 
-        print(intervals)
-
         answer += intervals[-1][-1]
 
     return answer
@@ -52,16 +50,14 @@ def question_2():
         for i, inter in enumerate(intervals[1:]):
             inter.insert(0, inter[0] - intervals[i][0])
 
-        print(intervals)
-
         answer += intervals[-1][0]
 
     return answer
 
 
 if __name__ == '__main__':
-    # answer_1 = question_1()
-    # print(f"Question 1 answer is: {answer_1}")
+    answer_1 = question_1()
+    print(f"Question 1 answer is: {answer_1}")
 
     answer_2 = question_2()
     print(f"Question 2 answer is: {answer_2}")
