@@ -25,7 +25,6 @@ collision_dict = {("R", "D"): "R",
                   ("D", "?"): "R",
                   }
 
-invert_dict = {"R": "L", "L": "R"}
 
 def file_lines():
     with open(in_file) as file:
