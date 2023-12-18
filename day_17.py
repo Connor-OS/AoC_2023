@@ -1,135 +1,90 @@
-from functools import cache
-
-TEST = True
+TEST = False
 in_file = "./resources/day_17_test.txt" if TEST else "./resources/day_17_input.txt"
 
-mem = {}
+import numpy as np
+from queue import PriorityQueue
+
 directions = {"R": (0, 1), "L": (0, -1), "D": (1, 0), "U": (-1, 0)}
 
-import numpy as np
-from copy import deepcopy as dcopy
 
 with open(in_file) as file:
-    grid = []
+    graph = []
     for line in file:
         """Custom iteration logic goes here"""
         line = line.strip()
-        grid.append([int(i) for i in line])
-    grid = np.array(grid)
+        graph.append([int(i) for i in line])
+    graph = np.array(graph)
 
 
 def question_1():
     """Answer to the first question of the day"""
     answer = None
-    # print(grid)
-    # simple bfs
 
-    # add neighbours to queue. add crruent square to visited add
-    answer = bfs()
-
-    return answer
-
-
-class node():
-
-    def __init__(self, tile):
-        if len(tile) == 2:
-            self.cost = grid[*tile]
-        else:
-            x,y,_ = tile
-            self.cost = grid[x, y]
-        self.dist = 10000000
-        self.direction = (0, 0)
-        self.steps = 0
-        self.prev = None
-
-    def __str__(self):
-        return f"{self.cost} {self.dist} {self.direction} {self.steps} {self.prev}"
-
-    def set_dist(self, distance, direction, steps, prev):
-        self.dist = distance
-        self.direction = direction
-        self.steps = steps
-        self.prev = prev
-
-
-
-
-def shortest_dist(routes, visited):
-    return_tile = None
-    dist = 10000000
-    for tile in routes:
-        if routes[tile].dist <= dist and tile not in visited:
-            dist = routes[tile].dist
-            return_tile = tile
-    return return_tile
-
-
-def bfs():
+    frontier = PriorityQueue()
     start = (0, 0)
+    goal = (len(graph)-1, len(graph[0])-1)
 
-    routes = {(0, 0): node((0, 0))}
-    for i, row in enumerate(grid):
-        for j, _ in enumerate(row):
-            # routes[(i, j)] = node((i, j))
-            for d in ["R", "L", "D", "U"]:
-                routes[(i, j, d)] = node((i, j))
+    frontier.put((start, "", 1), 0)
+    came_from = dict()
+    cost_so_far = dict()
+    came_from[(start, "", 1)] = None
+    cost_so_far[(start, "", 1)] = 0
 
-    routes[(0, 0)].set_dist(0, (0, 0), 1, None)
+    while not frontier.empty():
+        current = frontier.get()
+        pos, direc, steps = current
 
-    visited = {}
-    while len(visited) < len(routes):
-        # pop current shortest node
-        tile = shortest_dist(routes, visited)
-        # print(tile)
-        # for new_tile in routes[tile].neighbours():
-        current_direction = routes[tile].direction
         for d in ["R", "L", "D", "U"]:
-            new_tile = tuple(map(sum, zip(tile[:2], directions[d])))
-            if routes[tile].steps == 3 and d == current_direction:
+            if direc and directions[direc] == tuple(-i for i in directions[d]):
                 continue
 
-            new_tile = new_tile + (d,)
-
-            if new_tile not in routes:
+            if steps == 3 and direc == d:
                 continue
 
-            new_dist = routes[tile].dist + routes[new_tile].cost
-            if new_dist < routes[new_tile].dist:
-                routes[new_tile].set_dist(new_dist, d,
-                                          routes[tile].steps + 1 if current_direction == d else 1, tile)
-        visited[(tile] = routes[tile]
-        # print(routes[tile])
-        # routes.pop(tile)
+            next = tuple(map(sum, zip(pos, directions[d])))
+            x,y = next
+            if x < 0 or y < 0 or x >= len(graph) or y >= len(graph[0]):
+                continue
 
-    for i in routes:
-        print(i, routes[i].dist)
+            new_cost = cost_so_far[current] + graph[*next]
 
-    #     visited[tile] = tile_dist
-    print(visited[(1, 4, "D")])
+            if direc == d:
+                next_steps = steps + 1
+            else:
+                next_steps = 1
+            next = (next, d, next_steps)
 
-    output(visited, (1,4,"D"))
-    # print(visited[(140, 140, "R")])
-    # print(visited[(140, 140, "L")])
-    # print(visited[(140, 140, "U")])
-    # print(visited[(140, 140, "D")])
+            if next not in cost_so_far or new_cost < cost_so_far[next]:
+                cost_so_far[next] = new_cost
+                priority = new_cost
+                frontier.put(next,  priority)
+                came_from[next] = current
 
-    # for i in visited:
-    #     print(i, visited[i])
+    best = 10000000
+    for i in cost_so_far:
+        if i[0] == goal and cost_so_far[i] < best:
+            print(i, cost_so_far[i])
+            best = cost_so_far[i]
+            best_route = i
 
-def output(visited, end_node):
-    path = [end_node]
-    while end_node:
-        # print(end_node)
-        end_node = visited[end_node].prev
-        if end_node:
-            path.append(end_node[:2])
+    # output(best_route, came_from)
+
+    return best
+
+
+def output(current, came_form):
+    path = [current]
+    while current:
+        # print(current)
+        current = came_form[current]
+        if current:
+            path.append(current[0])
     # print(path)
 
-    for i, row in enumerate(grid):
+    for i, row in enumerate(graph):
         for j, col in enumerate(row):
-            if (i,j) in path:
-                print("#",end="")
+            if (i, j) in path:
+                print("#", end="")
             else:
                 print(col, end="")
 
@@ -137,16 +92,69 @@ def output(visited, end_node):
 
 
 
+
 def question_2():
     """Answer to the second question of the day"""
     answer = None
 
-    return answer
+    frontier = PriorityQueue()
+    start = (0, 0)
+    goal = (len(graph)-1, len(graph[0])-1)
+
+    frontier.put((start, "", 1), 0)
+    came_from = dict()
+    cost_so_far = dict()
+    came_from[(start, "", 1)] = None
+    cost_so_far[(start, "", 1)] = 0
+
+    while not frontier.empty():
+        current = frontier.get()
+        pos, direc, steps = current
+
+        for d in ["R", "L", "D", "U"]:
+            if direc and directions[direc] == tuple(-i for i in directions[d]):
+                continue
+
+            if steps == 10 and direc == d:
+                continue
+
+            if direc and steps < 4 and direc != d:
+                continue
+
+            next = tuple(map(sum, zip(pos, directions[d])))
+            x,y = next
+            if x < 0 or y < 0 or x >= len(graph) or y >= len(graph[0]):
+                continue
+
+            new_cost = cost_so_far[current] + graph[*next]
+
+            if direc == d:
+                next_steps = steps + 1
+            else:
+                next_steps = 1
+            next = (next, d, next_steps)
+
+            if next not in cost_so_far or new_cost < cost_so_far[next]:
+                cost_so_far[next] = new_cost
+                priority = new_cost
+                frontier.put(next,  priority)
+                came_from[next] = current
+
+    best = 10000000
+    for i in cost_so_far:
+        if i[0] == goal and cost_so_far[i] < best:
+            print(i, cost_so_far[i])
+            best = cost_so_far[i]
+            best_route = i
+
+    # output(best_route, came_from)
+
+    return best
 
 
 if __name__ == '__main__':
-    answer_1 = question_1()
-    print(f"Question 1 answer is: {answer_1}")
+    # answer_1 = question_1()
+    # print(f"Question 1 answer is: {answer_1}")
 
-    # answer_2 = question_2()
-    # print(f"Question 2 answer is: {answer_2}")
+    answer_2 = question_2()
+    print(f"Question 2 answer is: {answer_2}")
